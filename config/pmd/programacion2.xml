@@ -1,0 +1,97 @@
+<?xml version="1.0"?>
+<ruleset name="Programación 2"
+         xmlns="http://pmd.sourceforge.net/ruleset/2.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://pmd.sourceforge.net/ruleset/2.0.0 http://pmd.sourceforge.net/ruleset_2_0_0.xsd">
+    <description>
+        Configuración PMD para la cátedra de Programación 2 - Ingeniería en Computación [UNRN-Andina].
+    </description>
+
+    <rule ref="category/java/bestpractices.xml" >
+        <!-- Por el momento, las aplicaciones son simples y por CLI -->
+        <!-- Eventualmente revisaré esta regla -->
+        <exclude name="SystemPrintln" />
+    </rule>
+
+    <rule ref="category/java/codestyle.xml">
+        <!-- Esto es algo para tener en cuenta, pero no al principio -->
+        <exclude name="MethodArgumentCouldBeFinal" />
+        <!-- Esto es algo para tener en cuenta, pero no al principio -->
+        <exclude name="LocalVariableCouldBeFinal" />
+        <!-- Requerir un constructor es interesante, pero no siempre aporta valor -->
+        <exclude name="AtLeastOneConstructor" />
+    </rule>
+    <rule ref="category/java/codestyle.xml/ClassNamingConventions">
+        <properties>
+            <!-- I don't like forcing certain classes to be name Factory or Util. The pattern is useful -->
+            <!-- for other types of classes as well. -->
+            <property name="utilityClassPattern" value="[A-Z][a-zA-Z0-9]*" />
+        </properties>
+    </rule>
+    <rule ref="category/java/codestyle.xml/ShortMethodName">
+        <properties>
+            <!-- "of" is a ver common function name. -->
+            <property name="minimum" value="2" />
+        </properties>
+    </rule>
+    <rule ref="category/java/codestyle.xml/LinguisticNaming" >
+        <properties>
+            <!--The way I like to name tests breaks this rule, so ignore anything annotated as @Test. -->
+            <property name="violationSuppressXPath" value="//ClassOrInterfaceBodyDeclaration/Annotation/MarkerAnnotation//Name[@Image='Test']" />
+        </properties>
+    </rule>
+
+    <rule ref="category/java/design.xml">
+        <!-- Esto es algo que hay que desactivar en próximas practicas -->
+        <!-- Ya que las clases en las que los métodos son estáticos son de soporte -->
+        <exclude name="UseUtilityClass" />
+
+        <!-- As much as I theoretically like the Law of Demeter, the test for it hasn't kept up -->
+        <!-- with how a lot of coding is done. It can't handle stream processing. -->
+        <exclude name="LawOfDemeter" />
+        <!-- This rule has to be configured explicitly. There are no defaults. Since there is nothing -->
+        <!-- I want to put in here, I excluded it to remove a warning during build. See -->
+        <!-- https://pmd.github.io/latest/pmd_rules_java_design.html#loosepackagecoupling for how to configure -->
+        <!-- this rule if you want to use 0it. -->
+        <exclude name="LoosePackageCoupling" />
+    </rule>
+
+    <rule ref="category/java/documentation.xml"/>
+    <rule ref="category/java/documentation.xml/CommentRequired">
+        <properties>
+            <!-- Requerir una descripción en los atributos no suma mucho. -->
+            <property name="fieldCommentRequirement" value="Ignored" />
+        </properties>
+    </rule>
+    <rule ref="category/java/documentation.xml/CommentSize">
+        <properties>
+            <!-- 6 lineas es demasiado restrictivo como longitud de comentarios. -->
+            <!--   En especial si hay mas tags. -->
+            <property name="maxLines" value="30" />
+            <!-- I want the line size to match the code requirement. -->
+            <property name="maxLineLength" value="150" />
+        </properties>
+    </rule>
+
+    <rule ref="category/java/multithreading.xml"/>
+
+    <rule ref="category/java/performance.xml"/>
+
+    <rule ref="category/java/security.xml"/>
+
+    <rule ref="category/java/errorprone.xml"/>
+
+    <rule ref="category/java/design.xml/SignatureDeclareThrowsException" >
+        <properties>
+            <property name="IgnoreJUnitCompletely" value="true" />
+        </properties>
+    </rule>
+
+<!--    <rule ref="category/java/errorprone.xml/DataflowAnomalyAnalysis"> -->
+<!--            <properties> -->
+                <!-- There is a bug in PMD and it will trigger this rule in for (x : any-sort-of-collection) {} loops. -->
+            <!-- Turning off as the compiler would flag these anyway. -->
+<!--            <property name="violationSuppressRegex" value="^Found 'UR'-anomaly.*"/> -->
+<!--        </properties> -->
+<!--    </rule> -->
+    </ruleset>
