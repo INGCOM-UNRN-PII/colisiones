@@ -1,7 +1,5 @@
 import com.github.spotbugs.snom.SpotBugsTask
 
-import java.time.Duration
-
 plugins {
     id 'java'
     id 'pmd'
@@ -9,6 +7,15 @@ plugins {
     id 'application'
     id 'com.github.spotbugs' version '6.0.7'
     id 'jacoco'
+
+
+    id 'org.graalvm.buildtools.native' version '0.10.6'
+
+
+}
+
+graalvmNative {
+    toolchainDetection = true
 }
 
 java {
@@ -18,7 +25,7 @@ java {
 }
 
 application {
-    mainClass = 'ar.unrn.LoaderApp'
+    mainClass = 'ar.unrn.ColisionApp'
 }
 
 run {
@@ -34,11 +41,12 @@ repositories {
 
 dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter:5.9.2'
+    implementation 'com.googlecode.lanterna:lanterna:3.1.2'
 }
 
 test {
     useJUnitPlatform()
-    timeout = Duration.ofMinutes(1) // Un minuto para resolver cuelgues en los tests.
+//    timeout = Duration.ofMinutes(1) // Un minuto para resolver cuelgues en los tests.
     finalizedBy jacocoTestReport
 }
 
