@@ -15,9 +15,39 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Clase principal que demuestra la búsqueda de colisiones de {@code hashCode}
+ * para una gran cantidad de objetos {@code ObjetoSimple}.
+ * También incluye un ejemplo básico de uso de la librería Lanterna para interacción con la terminal.
+ *
+ * @author martinvilu
+ * @version 2026.04.23
+ */
 public class ColisionApp {
+    /**
+     * Número de objetos {@code ObjetoSimple} a generar para la búsqueda de colisiones.
+     */
     private static final int NUM_OBJETOS_A_GENERAR = 500_000;
 
+    /**
+     * Constructor privado para evitar la instanciación de esta clase de utilidad.
+     */
+    private ColisionApp() {
+        // Constructor privado para clase utilitaria
+    }
+
+    /**
+     * Punto de entrada principal de la aplicación.
+     * Realiza dos tareas principales:
+     * 1. Demuestra un uso básico de la librería Lanterna para dibujar en la terminal.
+     * 2. Genera una gran cantidad de {@code ObjetoSimple}, calcula sus {@code hashCode}
+     *    y detecta cuántas colisiones ocurren (múltiples objetos con el mismo {@code hashCode}).
+     *
+     * @param args Argumentos de invocación (no utilizados en este ejemplo).
+     * @throws IOException si ocurre un error de entrada/salida al interactuar con la terminal.
+     * @throws InterruptedException si el hilo actual es interrumpido mientras espera.
+     * @contract.post Se imprime en consola un resumen de las colisiones de hashCode encontradas.
+     */
     public static void main(String[] args) {
         try {
             Screen screen = new DefaultTerminalFactory().createScreen();
@@ -115,7 +145,17 @@ public class ColisionApp {
         System.out.println("Total de colisiones de hashCode encontradas: " + colisionesEncontradas);
     }
 
+    /**
+     * Clase interna estática que extiende {@code BasicWindow} de Lanterna.
+     * Demuestra la creación de una ventana básica con un diseño de paneles horizontales.
+     */
     public static class MyWindow extends BasicWindow {
+        /**
+         * Constructor para {@code MyWindow}.
+         * Configura el título de la ventana y su contenido con un panel horizontal
+         * que contiene tres paneles internos.
+         * @contract.post La ventana es inicializada con un título y un diseño de paneles.
+         */
         public MyWindow() {
             super("My Window!");
             Panel horizontalPanel = new Panel();

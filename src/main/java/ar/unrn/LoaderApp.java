@@ -11,10 +11,14 @@ import java.util.Enumeration;
 import java.util.List;
 
 /**
- * Esta clase se encarga de ejecutar todos los main en esta ubicación.
- * No es necesaria (o recomendada) su modificación.
+ * Esta clase utilitaria se encarga de cargar dinámicamente y ejecutar todos los métodos `main`
+ * encontrados en el paquete {@code ar.unrn} y sus subpaquetes.
+ * Su propósito principal es automatizar la ejecución de los ejemplos de los trabajos prácticos.
+ * No es necesaria (o recomendada) su modificación para el desarrollo de los TPs.
+ *
+ * @author martinvilu
+ * @version 2026.04.23
  */
-
 @SuppressWarnings({"unchecked", "rawtypes"})
 public class LoaderApp {
 
@@ -26,11 +30,22 @@ public class LoaderApp {
     private static final String PACKAGE_TO_RUN = "ar.unrn";
 
     /**
-     * Punto de entrada del trabajo práctico, este método se encarga de ejecutar
-     * todos los contenidos en esta ubicación.
+     * Constructor privado para evitar la instanciación de esta clase utilitaria.
+     */
+    private LoaderApp() {
+        // Constructor privado para clase utilitaria
+    }
+
+    /**
+     * Punto de entrada principal de la aplicación.
+     * Este método escanea el paquete {@code ar.unrn}, busca todas las clases que contienen
+     * un método `main(String[] args)` y las ejecuta secuencialmente.
      *
      * @param args son los argumentos de invocación que serán pasados a los
-     *             otros main.
+     *             métodos `main` de las clases encontradas.
+     * @throws InternalLoaderException si ocurre un error durante la carga o ejecución de las clases.
+     * @contract.post Todos los métodos `main` de las clases encontradas en {@code PACKAGE_TO_RUN}
+     *                (excepto {@code LoaderApp} misma) han sido invocados.
      */
     public static void main(String[] args) {
         Class[] clases;
@@ -63,22 +78,21 @@ public class LoaderApp {
         }
     }
 
-    // Métodos extraídos de:
-    // http://snippets.dzone.com/posts/show/4831
-
     /**
-     * Scans all classes accessible from the context class loader which belong
-     * to the given package and subpackages.
+     * Escanea todas las clases accesibles desde el ClassLoader del contexto
+     * que pertenecen al paquete dado y sus subpaquetes.
      *
-     * @param packageName The base package to fetch
-     * @return The classes in packageName
-     * @throws ClassNotFoundException when a file looks like a class but isn't
-     * @throws IOException            when a file has access problems
+     * @param packageName El paquete base a escanear (ej. "ar.unrn").
+     * @return Un arreglo de objetos {@code Class} encontrados en el paquete.
+     * @throws ClassNotFoundException si un archivo parece una clase pero no puede ser cargado como tal.
+     * @throws IOException            si hay problemas de acceso a los recursos del sistema de archivos.
+     * @contract.pre {@code packageName != null && !packageName.isBlank()}
+     * @contract.post Retorna un arreglo de clases no nulo.
      */
     private static Class[] getClasses(String packageName) throws
             ClassNotFoundException, IOException {
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-        assert classLoader != null;
+        assert classLoader != null; // El ClassLoader del contexto no debería ser null en un entorno Java estándar.
         String path = packageName.replace('.', '/');
         Enumeration<URL> resources = classLoader.getResources(path);
         List<File> dirs = new ArrayList<>();
@@ -94,25 +108,26 @@ public class LoaderApp {
     }
 
     /**
-     * Recursive method used to find all classes in a given directory
-     * and subdirectories.
+     * Método recursivo utilizado para encontrar todas las clases en un directorio dado
+     * y sus subdirectorios.
      *
-     * @param directory   The base directory
-     * @param packageName The package name for classes found inside the base
-     *                    directory
-     * @return The classes in the specified directory
-     * @throws ClassNotFoundException when a file looks like a class but isn't
+     * @param directory   El directorio base a escanear.
+     * @param packageName El nombre del paquete para las clases encontradas dentro del directorio base.
+     * @return Una lista de objetos {@code Class} encontrados en el directorio especificado.
+     * @throws ClassNotFoundException si un archivo parece una clase pero no puede ser cargado como tal.
+     * @contract.pre {@code directory != null && packageName != null && !packageName.isBlank()}
+     * @contract.post Retorna una lista de clases no nula.
      */
     private static List<Class> findClasses(File directory, String packageName)
             throws ClassNotFoundException {
         List<Class> classes = new ArrayList<>();
         if (directory.exists()) {
             File[] files = directory.listFiles();
-            assert files != null;
+            assert files != null; // listFiles() puede retornar null si no es un directorio o hay error de I/O.
             for (File file : files) {
                 String fileName = file.getName();
                 if (file.isDirectory()) {
-                    assert !fileName.contains(".");
+                    assert !fileName.contains("."); // Los nombres de directorio no deberían contener puntos.
                     classes.addAll(findClasses(file, packageName + "." + fileName));
                 } else if (fileName.endsWith(".class")) {
                     final int extension = ".class".length();
@@ -127,6 +142,7 @@ public class LoaderApp {
 
     /**
      * Esta excepción indica fallos internos del cargador de mains.
+     * Es una {@code RuntimeException} para no forzar su captura en los métodos `main` de los TPs.
      */
     public static class InternalLoaderException extends RuntimeException {
         /**
@@ -141,6 +157,8 @@ public class LoaderApp {
          *
          * @param message la descripción de la situación que provoco el problema.
          * @param reason  la excepción especifica que fue recibida.
+         * @contract.pre {@code message != null && reason != null}
+         * @contract.post La excepción es creada con el mensaje y la causa encadenada.
          */
         public InternalLoaderException(String message, Throwable reason) {
             super(message, reason);
